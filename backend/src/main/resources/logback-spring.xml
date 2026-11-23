@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Console Logging (Local Terminal वर लॉग्ज दिसण्यासाठी) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n</pattern>
+   </encoder>
+    </appender>
+
+    <!-- Loki Appender (Grafana Loki ला लॉग्ज पाठवण्यासाठी) -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <!-- Grafana Loki Server URL -->
+            <url>http://loki-server2:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=java-monitoring-service,host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <message>
+                <pattern>%d [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n</pattern>
+         </message>
+        </format>
+    </appender>
+
+    <!-- Root Logger Configuration -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="LOKI" />
+    </root>
+
+</configuration>

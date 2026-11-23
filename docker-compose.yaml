@@ -1,0 +1,89 @@
+---
+services:
+  mongo-server:
+    image: mongo:latest
+    container_name: mongo-server
+    ports:
+     - 27017:27017
+    networks:
+     - react-network
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  redis-server:
+     image: redis:latest
+     container_name: redis-server
+     ports:
+       - 6379:6379
+     networks:
+        - react-network
+     restart: unless-stopped
+
+  jaeger:
+   image: jaegertracing/all-in-one:latest
+   container_name: jaeger-server
+   ports: 
+    - 4318:4318
+    - 16686:16686
+   networks:
+     - react-network
+   restart: unless-stopped
+
+  loki:
+   image: grafana/loki:latest  
+   container_name: loki-server
+   ports:
+    - 3100:3100
+   networks:
+    -  react-network
+   restart: unless-stopped
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-server
+    ports:
+     - 3001:3000
+    networks:
+     - react-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+     -  loki
+    restart: unless-stopped
+
+  backend:
+     build:
+       context: ./backend
+       dockerfile: Dockerfile
+     container_name: spring-react-backend
+     ports:
+      - 8081:8081
+     environment:
+       - SPRING_MONGODB_URI=mongodb://mongo-server:27017/profile_db
+     networks:
+      - react-network
+     depends_on:
+      - mongo-server
+      - redis-server
+      - jaeger
+      - loki
+     restart: unless-stopped
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - 5173:5173
+    networks:
+      - react-network
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
+
+networks:
+  react-network:
+    driver: bridge

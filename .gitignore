@@ -1,0 +1,26 @@
+backend/target
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+frontend/build/
+build/
+.vite/
+*.local
+
+# --- IDE / Editors / OS ---
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
